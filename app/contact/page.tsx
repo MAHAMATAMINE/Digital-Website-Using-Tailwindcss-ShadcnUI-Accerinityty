@@ -39,11 +39,11 @@ import { PiSmiley } from "react-icons/pi";
 import Navbar from "@/components/navbar";
 
 const FormSchema = z.object({
-  first_name: z.string(),
-  last_name: z.string(),
-  email: z.string().email(),
-  job_title: z.string(),
-  company_name: z.string(),
+  first_name: z.string().nonempty("First name is required"),
+  last_name: z.string().nonempty("Last name is required"),
+  email: z.string().email("Invalid email address"),
+  job_title: z.string().optional(),
+  company_name: z.string().optional(),
   help: z.enum([
     "Evaluate Bird for my company",
     "Learn More",
@@ -51,13 +51,13 @@ const FormSchema = z.object({
     "Other",
   ]),
   services: z.enum([
-    "Mobile App Develoment",
+    "Mobile App Development",
     "Social Media Marketing",
     "UI/UX Design",
     "Branding",
     "Website Development",
   ]),
-  info: z.string(),
+  info: z.string().optional(),
   terms: z.boolean().refine((val) => val === true, {
     message: "You must agree to the terms",
   }),
@@ -79,7 +79,7 @@ export default function ContactForm() {
       job_title: "",
       company_name: "",
       help: "Learn More",
-      services: "Mobile App Develoment",
+      services: "Mobile App Development",
       info: "",
       terms: false,
     },
@@ -99,6 +99,7 @@ export default function ContactForm() {
       }
 
       setSubmitted(true);
+      form.reset();
     } catch (error) {
       toast({
         title: "Error",
@@ -110,17 +111,16 @@ export default function ContactForm() {
   }
 
   return (
-    <div className=" w-full   md:items-center md:justify-center bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden ">
+    <div className="w-full md:items-center md:justify-center bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
       <Navbar
         scrollToWebsiteDesign={() => {}}
         scrollToGraphicDesign={() => {}}
         scrollToShopifyStores={() => {}}
         scrollToBrands={() => {}}
-       
       />
       <div className="md:flex items-start justify-center md:py-20 px-6">
-        <div className="">
-          <div className="text-5xl font-medium  w-full md:w-2/3  pb-5 md:text-7xl bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
+        <div>
+          <div className="text-5xl font-medium w-full md:w-2/3 pb-5 md:text-7xl bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
             Contact our sales team
           </div>
           <div className="py-4 text-gray-300">
@@ -161,7 +161,7 @@ export default function ContactForm() {
                   control={form.control}
                   name="first_name"
                   render={({ field }) => (
-                    <FormItem className="items-center justify-center  w-full">
+                    <FormItem className="items-center justify-center w-full">
                       <FormLabel className="text-sm bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
                         First name *
                       </FormLabel>
@@ -177,7 +177,7 @@ export default function ContactForm() {
                   control={form.control}
                   name="last_name"
                   render={({ field }) => (
-                    <FormItem className="items-center justify-center  w-full">
+                    <FormItem className="items-center justify-center w-full">
                       <FormLabel className="text-sm bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
                         Last name *
                       </FormLabel>
@@ -194,9 +194,25 @@ export default function ContactForm() {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem className="items-center justify-center  w-full">
+                  <FormItem className="items-center justify-center w-full">
                     <FormLabel className="text-sm bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
                       Email *
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="job_title"
+                render={({ field }) => (
+                  <FormItem className="items-center justify-center w-full">
+                    <FormLabel className="text-sm bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
+                      Job Title
                     </FormLabel>
                     <FormControl>
                       <Input {...field} />
@@ -210,7 +226,7 @@ export default function ContactForm() {
                 control={form.control}
                 name="company_name"
                 render={({ field }) => (
-                  <FormItem className="items-center justify-center  w-full">
+                  <FormItem className="items-center justify-center w-full">
                     <FormLabel className="text-sm bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
                       Company name?
                     </FormLabel>
@@ -237,8 +253,8 @@ export default function ContactForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="Mobile App Develoment">
-                          Mobile App Develoment
+                        <SelectItem value="Mobile App Development">
+                          Mobile App Development
                         </SelectItem>
                         <SelectItem value="Social Media Marketing">
                           Social Media Marketing
@@ -259,7 +275,7 @@ export default function ContactForm() {
                 control={form.control}
                 name="help"
                 render={({ field }) => (
-                  <FormItem className="items-center justify-center  w-full">
+                  <FormItem className="items-center justify-center w-full">
                     <FormLabel className="text-sm bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
                       How can we help ?
                     </FormLabel>
@@ -307,7 +323,7 @@ export default function ContactForm() {
                     <FormControl>
                       <Checkbox
                         checked={field.value}
-                        onCheckedChange={field.onChange}
+                        onCheckedChange={(checked) => field.onChange(checked === true)}
                         className="border-2"
                       />
                     </FormControl>
@@ -324,9 +340,9 @@ export default function ContactForm() {
                 <Button
                   type="submit"
                   className="text-sm font-light"
-                  disabled={loading}
+                  disabled={loading || !form.formState.isValid}
                 >
-                  Submit
+                  {loading ? "Submitting..." : "Submit"}
                 </Button>
               </div>
             </form>
