@@ -35,7 +35,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
 
 import { Textarea } from "@/components/ui/textarea";
-import { PiCheckLight, PiSmiley } from "react-icons/pi";
+import { PiSmiley } from "react-icons/pi";
 import Navbar from "@/components/navbar";
 
 const FormSchema = z.object({
@@ -58,24 +58,12 @@ const FormSchema = z.object({
     "Website Development",
   ]),
   info: z.string(),
+  terms: z.boolean().refine((val) => val === true, {
+    message: "You must agree to the terms",
+  }),
 });
 
-type FormValues = {
-  first_name: string;
-  last_name: string;
-  email: string;
-  job_title: string;
-  company_name: string;
-  help: "Evaluate Bird for my company" | "Learn More" | "Get a Quote" | "Other";
-  services:
-    | "Mobile App Develoment"
-    | "Social Media Marketing"
-    | "UI/UX Design"
-    | "Branding"
-    | "Website Development";
-  info: string;
-  terms: boolean;
-};
+type FormValues = z.infer<typeof FormSchema>;
 
 export default function ContactForm() {
   const [loading, setLoading] = useState(false);
@@ -93,10 +81,11 @@ export default function ContactForm() {
       help: "Learn More",
       services: "Mobile App Develoment",
       info: "",
+      terms: false,
     },
   });
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: FormValues) {
     try {
       setLoading(true);
       const res = await fetch("/api/contact", {
@@ -127,20 +116,14 @@ export default function ContactForm() {
         scrollToGraphicDesign={() => {}}
         scrollToShopifyStores={() => {}}
         scrollToBrands={() => {}}
-        scrollToServices={() => {}}
+       
       />
       <div className="md:flex items-start justify-center md:py-20 px-6">
         <div className="">
           <div className="text-5xl font-medium  w-full md:w-2/3  pb-5 md:text-7xl bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
             Contact our sales team
           </div>
-          <div
-            className="
-              
-              py-4
-              text-gray-300
-                    "
-          >
+          <div className="py-4 text-gray-300">
             Let&apos;s talk about how Bird can help your team work better.
           </div>
 
@@ -171,15 +154,7 @@ export default function ContactForm() {
           {!submitted ? (
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="
-            space-y-4
-            h-full
-            border rounded-3xl p-10
-            md:w-1/3
-            
-            
-                     
-                        "
+              className="space-y-4 h-full border rounded-3xl p-10 md:w-1/3"
             >
               <div className="md:flex items-center gap-6 ">
                 <FormField
@@ -193,6 +168,7 @@ export default function ContactForm() {
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -208,6 +184,7 @@ export default function ContactForm() {
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -224,6 +201,7 @@ export default function ContactForm() {
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -239,6 +217,7 @@ export default function ContactForm() {
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -249,29 +228,29 @@ export default function ContactForm() {
                 render={({ field }) => (
                   <FormItem className="items-center justify-center w-full">
                     <FormLabel className="text-sm bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
-                    Services you are interested in
+                      Services you are interested in
                     </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select an option" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <div className="flex gap-4">
-                          <SelectItem value="Mobile App Develoment">
+                        <SelectItem value="Mobile App Develoment">
                           Mobile App Develoment
-                          </SelectItem>
-                        </div>
-                        <SelectItem value="Social Media Marketing">Social Media Marketing</SelectItem>
-                        <SelectItem value="51-200">51-200</SelectItem>
-                        <SelectItem value="501-1000">501-1000</SelectItem>
-                        <SelectItem value="1000+">1000+</SelectItem>
+                        </SelectItem>
+                        <SelectItem value="Social Media Marketing">
+                          Social Media Marketing
+                        </SelectItem>
+                        <SelectItem value="UI/UX Design">UI/UX Design</SelectItem>
+                        <SelectItem value="Branding">Branding</SelectItem>
+                        <SelectItem value="Website Development">
+                          Website Development
+                        </SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -284,30 +263,22 @@ export default function ContactForm() {
                     <FormLabel className="text-sm bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400 bg-opacity-50">
                       How can we help ?
                     </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger
-                        
-                        
-                        >
+                        <SelectTrigger>
                           <SelectValue placeholder="Select an option" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <div className="flex gap-4">
-                          <SelectItem value="Evaluate Bird for my company">
-                            Evaluate Bird for my company
-                          </SelectItem>
-                        </div>
+                        <SelectItem value="Evaluate Bird for my company">
+                          Evaluate Bird for my company
+                        </SelectItem>
                         <SelectItem value="Learn More">Learn More</SelectItem>
                         <SelectItem value="Get a Quote">Get a Quote</SelectItem>
-
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -323,71 +294,53 @@ export default function ContactForm() {
                     <FormControl>
                       <Textarea style={{ height: "100px" }} {...field} />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
 
-              <div className="flex gap-4 items-center">
-                <div>
-                  <Checkbox
-                    className="
-                outline
-                border-2
-                text-sm
-                font-light
-                bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400
-                "
-                  />
-                </div>
-                <div className="text-xs font-light  md:w-3/4 mb-1 bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
-                  I agree to Bird&apos; sending marketing communications related
-                  to bird
-                </div>
-              </div>
+              <FormField
+                control={form.control}
+                name="terms"
+                render={({ field }) => (
+                  <FormItem className="flex gap-4 items-center">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="border-2"
+                      />
+                    </FormControl>
+                    <FormLabel className="text-xs font-light bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400">
+                      I agree to Bird&apos;s sending marketing communications related
+                      to Bird
+                    </FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
               <div className="flex items-center gap-4">
                 <Button
                   type="submit"
-                  className="
-                            text-sm
-                            font-light
-                        
-                            "
+                  className="text-sm font-light"
                   disabled={loading}
-                  onClick={() => form.handleSubmit(onSubmit)}
                 >
                   Submit
                 </Button>
               </div>
             </form>
           ) : (
-            <>
-              <div
-                className="
-        text-xl 
-        
-        md:text-2xl 
-        flex 
-        items-center
-        justify-center
-        flex-col
-        
+            <div className="text-xl md:text-2xl flex items-center justify-center flex-col px-8">
+              <div className="w-80 py-20">
+                <PiSmiley className="text-6xl text-[#6c6684] mx-auto" />
 
- 
-        px-8
-
-        "
-              >
-                <div className="w-80 py-20">
-                  <PiSmiley className="text-6xl text-[#6c6684] mx-auto" />
-
-                  <div className="text-gray-500 font-light  text-center justify-center mx-auto py-10">
-                    We&apos;ve received your inquiry and will be contacting you
-                    via email shortly.
-                  </div>
+                <div className="text-gray-500 font-light text-center justify-center mx-auto py-10">
+                  We&apos;ve received your inquiry and will be contacting you
+                  via email shortly.
                 </div>
               </div>
-            </>
+            </div>
           )}
         </Form>
       </div>
